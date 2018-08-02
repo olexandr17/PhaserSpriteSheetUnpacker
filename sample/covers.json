@@ -1,0 +1,52 @@
+{"frames": {
+
+"games/lucky_haunter2/res/img/bonus/covers/00.png":
+{
+	"frame": {"x":114,"y":2,"w":104,"h":105},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":3,"y":2,"w":104,"h":105},
+	"sourceSize": {"w":110,"h":111}
+},
+"games/lucky_haunter2/res/img/bonus/covers/01.png":
+{
+	"frame": {"x":141,"y":109,"w":86,"h":102},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":21,"y":2,"w":86,"h":102},
+	"sourceSize": {"w":110,"h":111}
+},
+"games/lucky_haunter2/res/img/bonus/covers/02.png":
+{
+	"frame": {"x":85,"y":115,"w":54,"h":108},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":35,"y":0,"w":54,"h":108},
+	"sourceSize": {"w":110,"h":111}
+},
+"games/lucky_haunter2/res/img/bonus/covers/03.png":
+{
+	"frame": {"x":2,"y":115,"w":81,"h":109},
+	"rotated": false,
+	"trimmed": true,
+	"spriteSourceSize": {"x":13,"y":0,"w":81,"h":109},
+	"sourceSize": {"w":110,"h":111}
+},
+"games/lucky_haunter2/res/img/bonus/covers/04.png":
+{
+	"frame": {"x":2,"y":2,"w":110,"h":111},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":110,"h":111},
+	"sourceSize": {"w":110,"h":111}
+}},
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker",
+	"version": "1.0",
+	"image": "covers.png",
+	"format": "RGBA8888",
+	"size": {"w":256,"h":256},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:a4d2314f615c2f8cdfbbf15042aa6ee2:da6747372bf7490b7a19564fc83c6a15:0c8e14771a9a2b9e38d492b539117ff1$"
+}
+}

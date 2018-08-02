@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -44,8 +44,7 @@ namespace PhaserSpriteSheetUnpacker
                 }
                 if (!Directory.Exists(args[2]))
                 {
-                    Console.WriteLine("Output folder does not exist!");
-                    return;
+                    Directory.CreateDirectory(args[2]);
                 }
 
                 try
@@ -53,16 +52,34 @@ namespace PhaserSpriteSheetUnpacker
                     foreach (var item in sprites.frames)
                     {
                         Console.WriteLine(item.Name);
+
                         var frame = item.Value.frame;
                         Rectangle cropRect = new Rectangle((int)frame.x.Value, (int)frame.y.Value, (int)frame.w.Value, (int)frame.h.Value);
+
                         Bitmap sprite = CropImage(bitmap, cropRect);
-                        if (item.Name.Length > 3 && item.Name.Substring(item.Name.Length - 4) == ".png")
+
+                        var trimmed = (bool)item.Value.trimmed.Value;
+                        if (trimmed)
                         {
-                            sprite.Save(Path.Combine(args[2],item.Name));
+                            var sourceSize = item.Value.sourceSize;
+                            var size = new Point((int)sourceSize.w.Value, (int)sourceSize.h.Value);
+
+                            var spriteSourceSize = item.Value.spriteSourceSize;
+                            var position = new Point((int)spriteSourceSize.x.Value, (int)spriteSourceSize.y.Value);
+
+                            sprite = PlaceImage(sprite, size, position);
+                        }
+
+                        var fileName = (string)item.Name;
+                        fileName = fileName.Substring(fileName.LastIndexOf('/') + 1);
+
+                        if (fileName.Length > 3 && fileName.Substring(fileName.Length - 4) == ".png")
+                        {
+                            sprite.Save(Path.Combine(args[2], fileName));
                         }
                         else
                         {
-                            sprite.Save(Path.Combine(args[2], item.Name + ".png"));
+                            sprite.Save(Path.Combine(args[2], fileName + ".png"));
                         }
                     }
                 }
@@ -90,6 +107,20 @@ namespace PhaserSpriteSheetUnpacker
             }
             return target;
         }
+
+        private static Bitmap PlaceImage(Bitmap src, Point size, Point position)
+        {
+            Bitmap target = new Bitmap(size.X, size.Y);
+
+            using (Graphics g = Graphics.FromImage(target))
+            {
+                g.DrawImage(src, new Rectangle(0, 0, size.X, size.Y),
+                                 new Rectangle(-position.X, -position.Y, size.X, size.Y),
+                                 GraphicsUnit.Pixel);
+            }
+            return target;
+        }
+
         private static void help()
         {
             Console.WriteLine("Usage:");

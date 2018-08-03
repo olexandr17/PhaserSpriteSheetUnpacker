@@ -62,7 +62,6 @@ namespace PhaserSpriteSheetUnpacker
                 catch (Exception ex)
                 {
                     Console.WriteLine("Error reading the png file: {0}", ex.Message);
-                    Console.ReadKey();
                     return;
                 }
 

@@ -21,7 +21,8 @@ namespace PhaserSpriteSheetUnpacker
             Console.WriteLine("Phaser Sprite Sheet Unpacker v1.0 - (C)2016 Marcelo Lv Cabral");
             Console.WriteLine("Extracts each frame from the sprite sheet as a separare png");
             Console.WriteLine("");
-            if (args.Length >= 3)
+
+            if (args.Length >= 1)
             {
                 try
                 {
@@ -33,26 +34,45 @@ namespace PhaserSpriteSheetUnpacker
                     Console.WriteLine("Error reading/deserializing the json file: {0}", ex.Message);
                     return;
                 }
+
+                string fileName = string.Empty;
+                if (args.Length >= 2)
+                {
+                    fileName = args[1];
+                }
+                else
+                {
+                    try
+                    {
+                        fileName = sprites.meta.image.Value;
+                        if (!File.Exists(fileName))
+                        {
+                            fileName = args[0].Substring(0, args[0].LastIndexOf('/') + 1) + fileName;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                    }
+                }
+
                 try
                 {
-                    bitmap = Image.FromFile(args[1]) as Bitmap;
+                    bitmap = Image.FromFile(fileName) as Bitmap;
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine("Error reading the png file: {0}", ex.Message);
+                    Console.ReadKey();
                     return;
                 }
-                if (!Directory.Exists(args[2]))
-                {
-                    Directory.CreateDirectory(args[2]);
-                }
+
+                var folderPath = GetFolderPath(args);
+                Directory.CreateDirectory(folderPath);
 
                 try
                 {
                     foreach (var item in sprites.frames)
                     {
-                        Console.WriteLine(item.Name);
-
                         var frame = item.Value.frame;
                         Rectangle cropRect = new Rectangle((int)frame.x.Value, (int)frame.y.Value, (int)frame.w.Value, (int)frame.h.Value);
 
@@ -61,26 +81,19 @@ namespace PhaserSpriteSheetUnpacker
                         var trimmed = (bool)item.Value.trimmed.Value;
                         if (trimmed)
                         {
-                            var sourceSize = item.Value.sourceSize;
-                            var size = new Point((int)sourceSize.w.Value, (int)sourceSize.h.Value);
-
                             var spriteSourceSize = item.Value.spriteSourceSize;
                             var position = new Point((int)spriteSourceSize.x.Value, (int)spriteSourceSize.y.Value);
 
-                            sprite = PlaceImage(sprite, size, position);
+                            var sourceSize = item.Value.sourceSize;
+                            var size = new Point((int)sourceSize.w.Value, (int)sourceSize.h.Value);
+
+                            sprite = PlaceImage(sprite, position, size);
                         }
 
-                        var fileName = (string)item.Name;
-                        fileName = fileName.Substring(fileName.LastIndexOf('/') + 1);
+                        string filePath = GetFilePath(folderPath, (string)item.Name);
+                        Console.WriteLine(filePath);
 
-                        if (fileName.Length > 3 && fileName.Substring(fileName.Length - 4) == ".png")
-                        {
-                            sprite.Save(Path.Combine(args[2], fileName));
-                        }
-                        else
-                        {
-                            sprite.Save(Path.Combine(args[2], fileName + ".png"));
-                        }
+                        sprite.Save(filePath);
                     }
                 }
                 catch (Exception ex)
@@ -91,8 +104,35 @@ namespace PhaserSpriteSheetUnpacker
             }
             else
             {
-                help();
+                Help();
             }
+
+            #if DEBUG
+                Console.ReadKey();
+            #endif
+        }
+
+        private static string GetFolderPath(string[] args)
+        {
+            string tempPath;
+            if (args.Length >= 3)
+            {
+                tempPath = args[2];
+            }
+            else
+            {
+                tempPath = args[0].Substring(0, args[0].LastIndexOf('.'));
+            }
+
+            int index = 0;
+            string folderPath = tempPath;
+            while (File.Exists(folderPath) || Directory.Exists(folderPath))
+            {
+                index++;
+                folderPath = tempPath + " (" + index + ")";
+            }
+
+            return folderPath;
         }
 
         private static Bitmap CropImage(Bitmap src, Rectangle cropRect)
@@ -108,7 +148,7 @@ namespace PhaserSpriteSheetUnpacker
             return target;
         }
 
-        private static Bitmap PlaceImage(Bitmap src, Point size, Point position)
+        private static Bitmap PlaceImage(Bitmap src, Point position, Point size)
         {
             Bitmap target = new Bitmap(size.X, size.Y);
 
@@ -121,7 +161,25 @@ namespace PhaserSpriteSheetUnpacker
             return target;
         }
 
-        private static void help()
+        private static string GetFilePath(string folderPath, string fileName)
+        {
+            fileName = fileName.Substring(fileName.LastIndexOf('/') + 1);
+
+            string filePath;
+
+            if (fileName.Length > 3 && fileName.Substring(fileName.Length - 4) == ".png")
+            {
+                filePath = Path.Combine(folderPath, fileName);
+            }
+            else
+            {
+                filePath = Path.Combine(folderPath, fileName + ".png");
+            }
+
+            return filePath.Replace('\\', '/');
+        }
+
+        private static void Help()
         {
             Console.WriteLine("Usage:");
             Console.WriteLine("pssu <json path> <png path> <output folder>");
